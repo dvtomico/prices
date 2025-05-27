@@ -1,8 +1,6 @@
 package com.personal.prices.repository;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
@@ -19,11 +17,10 @@ public class PriceRepositoryImpl implements PriceRepository {
 	private final PriceRepositoryMapper priceRepositoryMapper;
 
 	@Override
-	public List<Price> findByBrandIdAndProductIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+	public Price findByAndSort(
 			String brandId, String productId, LocalDateTime applicationDateTime, LocalDateTime applicationDateTime2) {
 		// TODO Auto-generated method stub
-		return priceRepository.findByBrandIdAndProductIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(brandId, productId, applicationDateTime, applicationDateTime2)
-				.stream().map(priceRepositoryMapper::map).collect(Collectors.toList());
+		return priceRepositoryMapper.map(priceRepository.findByAndSort(brandId, productId, applicationDateTime, applicationDateTime2));
 	}
 	
 	

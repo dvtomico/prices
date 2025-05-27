@@ -1,8 +1,6 @@
 package com.personal.prices.controller;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,10 +24,10 @@ public class PriceController {
 	private final PriceRestMapper priceRestMapper;
 	
 	@GetMapping
-	public ResponseEntity<List<PriceDto>> getPricesFiltered(@RequestParam LocalDateTime applicationDateTime, @RequestParam String productId, 
+	public ResponseEntity<PriceDto> getPricesFiltered(@RequestParam LocalDateTime applicationDateTime, @RequestParam String productId, 
 			@RequestParam String brandId) {
-		List<Price> prices = priceGetFiltered.execute(applicationDateTime, productId, brandId);
-        List<PriceDto> pricesDto = prices.stream().map(priceRestMapper::map).collect(Collectors.toList());
+		Price price = priceGetFiltered.execute(applicationDateTime, productId, brandId);
+        PriceDto pricesDto = priceRestMapper.map(price);
         return new ResponseEntity<>(pricesDto, HttpStatus.OK);
     }
 	
