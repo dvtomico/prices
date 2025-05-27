@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,22 +27,45 @@ public class PriceGetFilteredUseCaseTest {
 	private PriceGetFilteredUseCase priceGetFilteredUseCase;
 	
 	@Test
-	void execute_OK() {
+	void execute_OK_uniqueResult() {
 		String productId = "1";
 		String brandId = "1";
 		LocalDateTime applicationDateTime = LocalDateTime.now();
-		Price price = Price.builder().brandId(brandId).productId(productId).
+		List<Price> priceList = List.of(Price.builder().brandId(brandId).productId(productId).
 				priceList(1).startDate(LocalDateTime.now().minusDays(1)).
 				endDate(LocalDateTime.now().plusDays(1)).priority(1).
-				price(1.0).build();
+				price(1.0).build());
 		
-		when(priceRepository.findByAndSort(brandId, productId, applicationDateTime, applicationDateTime))
-			.thenReturn(price);
+		when(priceRepository.findByBrandIdAndProductIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(brandId, productId, applicationDateTime, applicationDateTime))
+			.thenReturn(priceList);
 		
 		Price response = priceGetFilteredUseCase.execute(applicationDateTime, productId, brandId);
 		
 		assertThat(response).isNotNull();
-		assertThat(response).isEqualTo(price);
+		assertThat(response).isEqualTo(priceList.get(0));
+	}
+	
+	@Test
+	void execute_OK_multipleResults() {
+		String productId = "1";
+		String brandId = "1";
+		LocalDateTime applicationDateTime = LocalDateTime.now();
+		List<Price> priceList = List.of(Price.builder().brandId(brandId).productId(productId).
+				priceList(1).startDate(LocalDateTime.now().minusDays(1)).
+				endDate(LocalDateTime.now().plusDays(1)).priority(1).
+				price(1.0).build(),
+				Price.builder().brandId(brandId).productId(productId).
+				priceList(1).startDate(LocalDateTime.now().minusDays(1)).
+				endDate(LocalDateTime.now().plusDays(1)).priority(2).
+				price(1.0).build());
+		
+		when(priceRepository.findByBrandIdAndProductIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(brandId, productId, applicationDateTime, applicationDateTime))
+			.thenReturn(priceList);
+		
+		Price response = priceGetFilteredUseCase.execute(applicationDateTime, productId, brandId);
+		
+		assertThat(response).isNotNull();
+		assertThat(response).isEqualTo(priceList.get(1));
 	}
 	
 	@Test
@@ -49,8 +74,8 @@ public class PriceGetFilteredUseCaseTest {
 		String brandId = "1";
 		LocalDateTime applicationDateTime = LocalDateTime.now();
 
-		when(priceRepository.findByAndSort(brandId, productId, applicationDateTime, applicationDateTime))
-			.thenReturn(null);
+		when(priceRepository.findByBrandIdAndProductIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(brandId, productId, applicationDateTime, applicationDateTime))
+			.thenReturn(Collections.emptyList());
 		
 		Exception exception = assertThrows(PriceNotFoundException.class, () -> {
 			priceGetFilteredUseCase.execute(applicationDateTime, productId, brandId);

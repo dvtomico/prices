@@ -1,6 +1,8 @@
 package com.personal.prices.usecase;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 
 import org.springframework.stereotype.Service;
@@ -18,7 +20,8 @@ public class PriceGetFilteredUseCase {
 	
 	public Price execute(LocalDateTime applicationDateTime, String productId, 
 			String brandId) {
-		Price price = priceRepository.findByAndSort(brandId, productId, applicationDateTime, applicationDateTime);
+		List<Price> priceList = priceRepository.findByBrandIdAndProductIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(brandId, productId, applicationDateTime, applicationDateTime);
+		Price price = priceList.stream().max(Comparator.comparing(Price::getPriority)).orElse(null);
 		if(Objects.isNull(price)) {
 			throw new PriceNotFoundException("Price not found");
 		}
