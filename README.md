@@ -31,4 +31,4 @@ brandId - String
 
 Example:
 
-http://localhost:8080/api/v1/prices?applicationDateTime=2020-12-31T23:59:59Z&productId=1&brandId=1
+http://localhost:8080/api/v1/prices?applicationDateTime=2020-12-31T23:59:59&productId=1&brandId=1
